@@ -3,7 +3,6 @@
 #include <chrono>
 #include <vector>
 #include "../inc/stack.hpp"
-#include "../inc/linkedlist.hpp"
 #include "../inc/dynarr.hpp"
 
 int main(){

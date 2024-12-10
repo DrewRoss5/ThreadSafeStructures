@@ -10,4 +10,4 @@ project(ThreadSafeStructures VERSION 0.1.0)
 #add_executable(tests test/test.cpp inc/linkedlists.hpp inc/stack.hpp)
 #target_link_libraries(tests PRIVATE GTest::gtest)
 
-add_executable(mainTest inc/linkedlist.hpp inc/stack.hpp inc/dynarr.hpp src/main.cpp)
+add_executable(mainTest inc/stack.hpp inc/dynarr.hpp src/main.cpp)
