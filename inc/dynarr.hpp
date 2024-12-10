@@ -121,6 +121,7 @@ void DynArr<T>::clear(){
     T* newArr = new T[this->capacity];
     delete[] this->arr;
     this->arr = newArr;
+    this->arrSize = 0;
     this->unlock();
 }
 
