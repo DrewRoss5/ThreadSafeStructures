@@ -13,6 +13,7 @@ class DynArr{
         T& operator[](unsigned index);
         void set(unsigned index, const T& val);
         void pushBack(const T& val);
+        void clear();
     private:
         unsigned capacity {16};
         unsigned arrSize {0};
@@ -113,7 +114,17 @@ void DynArr<T>::reallocate(unsigned newCap){
     this->capacity = newCap;
 }
 
-// locks teh DynArr to the current thread
+// reallocates the array's memory without perserving the data, effectively clearing it
+template <typename T>
+void DynArr<T>::clear(){
+    this->lock();
+    T* newArr = new T[this->capacity];
+    delete[] this->arr;
+    this->arr = newArr;
+    this->unlock();
+}
+
+// locks the DynArr to the current thread
 template <typename T>
 void DynArr<T>::lock(){
     this->mut.lock();
