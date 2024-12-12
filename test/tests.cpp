@@ -42,14 +42,15 @@ TEST(ThreadSafetyTests, DynArrSafety){
     std::vector<std::thread> threads;
     // place 1000 elements from each thread, making a race condition likely
     for (int i = 0; i < threadCount; i++)
-        threads.emplace_back(populateArr, i * 1000, (i+1) * 1000);
+        threads.emplace_back(populateArr, i * 10000, (i+1) * 10000);
     for (int i = 0; i < threadCount; i++)
         threads[i].join();
     // check that each element in the array occurs exactly once, if any doesn't appear that means it was overwritten via race condition
     bool safe {true};
-    for (int i = 0; i < threadCount * 1000; i++){
-        unsigned count = std::count_if(&globalArr[0], &globalArr[1000*threadCount], [i] (int x) {return x == i;});
+    for (int i = 0; i < threadCount * 10000; i++){
+        unsigned count = std::count_if(&globalArr[0], &globalArr[10000*threadCount], [i] (int x) {return x == i;});
         if (count != 1){
+            std::cout << "Race condition detected! " << i << " appears " << count << " times." << std::endl;
             safe = false;
             break;
         }
