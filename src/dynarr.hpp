@@ -1,6 +1,5 @@
 #include <mutex>
 #include <cstring>
-#include <stdio.h>
 #include <stdexcept>
 
 template <typename T>
@@ -22,7 +21,7 @@ class DynArr{
         T* arr {nullptr};
         std::mutex mut;
         bool freed {false};
-        void reallocate(unsigned newCap = 0);
+        void reallocate(unsigned newCap);
         void lock();
         void unlock();
 };
@@ -97,7 +96,7 @@ template <typename T>
 void DynArr<T>::pushBack(const T& val){
     this->lock();
     if (this->arrSize == this->capacity)
-        this->reallocate();
+        this->reallocate(this->capacity * 2);
     this->arr[this->arrSize++] = val;
     this->unlock();
 }
@@ -105,15 +104,14 @@ void DynArr<T>::pushBack(const T& val){
 // reallocates the memory the DynArr (keeps data)
 template <typename T>
 void DynArr<T>::reallocate(unsigned newCap){
-    if (!newCap)
-        newCap = this->capacity * 2;
-    // create the new array
+    // create a new array and copy over the existing data
     T* newArr = new T[newCap];
-    memcpy(newArr, this->arr, this->arrSize * sizeof(T));
-    // clean up and reassign member variables
+    for (int i = 0; i < this->capacity; i++)
+        newArr[i] = this->arr[i];
+    // clean up and reassign variables
+    this->capacity = newCap;
     delete[] this->arr;
     this->arr = newArr;
-    this->capacity = newCap;
 }
 
 // public method to reallocate the DynArr

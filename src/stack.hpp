@@ -14,10 +14,10 @@ class Stack{
         ~Stack();
     private:
         T* arr;
-        unsigned capacity {};
+        unsigned capacity {16};
         int topIndex {-1};
         std::mutex mut;
-        bool freed;
+        bool freed {false};
         void reallocate();
         void lock();
         void unlock();
@@ -60,13 +60,14 @@ unsigned Stack<T>::size(){
 // reallocates the Stack's memory. This doubles the capacity
 template <typename T>
 void Stack<T>::reallocate(){
-    unsigned newCapacity = this->capacity * 2;
-    T* newArr = new T[newCapacity];
-    memcpy(newArr, this->arr, this->capacity * sizeof(T));
-    // clean up and update member variables
+    unsigned newCap = this->capacity * 2;
+    T* newArr = new T[newCap];
+    for (int i = 0; i < this->capacity; i++)
+        newArr[i] = this->arr[i];
+    // clean up and reassign variables
+    this->capacity = newCap;
     delete[] this->arr;
     this->arr = newArr;
-    this->capacity = newCapacity;
 }
 
 // returns the top value of the stack
