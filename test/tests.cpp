@@ -7,12 +7,20 @@
 #include "../src/stack.hpp"
 
 DynArr<int> globalArr;
+Stack<int> globalStack;
 
-// populates a DynArr with all integers within the range [start, end)
+// populates the global DynArr with all integers within the range [start, end)
 void populateArr(int start, int end){
     for (int i = start; i < end; i++)
         globalArr.pushBack(i);
 }
+
+// populates the global Stack with all integers within the range [start, end)
+void populateStack(int start, int end){
+    for (int i = start; i < end; i++)
+        globalStack.push(i);
+}
+
 
 // test the basic functionality of the DynArr class
 TEST(BasicTests, DynArrBasic){
@@ -40,7 +48,7 @@ TEST(BasicTests, StackBasic){
 TEST(ThreadSafetyTests, DynArrSafety){
     int threadCount = std::thread::hardware_concurrency();
     std::vector<std::thread> threads;
-    // place 1000 elements from each thread, making a race condition likely
+    // place 10000 elements from each thread, making a race condition likely
     for (int i = 0; i < threadCount; i++)
         threads.emplace_back(populateArr, i * 10000, (i+1) * 10000);
     for (int i = 0; i < threadCount; i++)
@@ -58,6 +66,36 @@ TEST(ThreadSafetyTests, DynArrSafety){
     ASSERT_TRUE(safe);
 }
   
+// check for race conditions affecting the Stack class
+TEST(ThreadSafetyTests, StackSafety){
+    int threadCount = std::thread::hardware_concurrency();
+    std::vector<std::thread> threads;
+    // place 10000 elements from each thread, making a race condition likely
+    for (int i = 0; i < threadCount; i++)
+        threads.emplace_back(populateStack, i * 1000, (i+1) * 1000);
+    for (int i = 0; i < threadCount; i++)
+        threads[i].join();
+    // convert the stack to an array for countif
+    int* arr = new int[1000 * threadCount];
+    int pos {0};
+    while (globalStack.size()){
+        arr[pos] = globalStack.pop();
+        pos++;
+    }
+    // ensure no elements were overwritten via race condition
+    bool safe {true};
+    for (int i = 0; i < threadCount * 1000; i++){
+        unsigned count = std::count_if(arr, arr + (1000*threadCount), [i] (int x) {return x == i;});
+        if (count != 1){
+            std::cout << "Race condition detected! " << i << " appears " << count << " times." << std::endl;
+            safe = false;
+            break;
+        }
+    }
+    delete[] arr;
+    ASSERT_TRUE(safe);
+}
+
 int main(int argc, char** argv){
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
