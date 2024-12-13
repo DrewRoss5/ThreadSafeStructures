@@ -1,3 +1,6 @@
+#ifndef DYNARR_H
+#define DYNARR_H
+
 #include <mutex>
 #include <cstring>
 #include <stdexcept>
@@ -15,15 +18,15 @@ class DynArr{
         void pushBack(const T& val);
         void clear();
         void reserve(unsigned newCap);
+        void lock();
+        void unlock();
     private:
         unsigned capacity {16};
         unsigned arrSize {0};
         T* arr {nullptr};
         std::mutex mut;
         bool freed {false};
-        void reallocate(unsigned newCap);
-        void lock();
-        void unlock();
+        void reallocate(unsigned newCap);        
 };
 
 // allocates a new dynamic array with 64 slots of capacity
@@ -143,3 +146,5 @@ template <typename T>
 void DynArr<T>::unlock(){
     this->mut.unlock();
 }
+
+#endif
