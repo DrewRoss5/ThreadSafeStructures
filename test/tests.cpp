@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 #include "../src/dynarr.hpp"
 #include "../src/stack.hpp"
+#include "../src/linkedlist.hpp"
 
 DynArr<int> globalArr;
 Stack<int> globalStack;
@@ -44,7 +45,23 @@ TEST(BasicTests, StackBasic){
     }
 }
 
-// check for race conditions in the DynArr class
+// test the basic functionality of the LinkedList class
+TEST(BasicTests, LinkedListBasic){
+    LinkedList<int> list;
+    list.pushBack(3);
+    EXPECT_EQ(list.size(), 1);
+    EXPECT_EQ(list.front(), 3);
+    list.pushBack(1);
+    list.insert(2, 1);
+    for (int i = 0; i < 3; i++){
+        std::cout << "Position " << i << ":" << std::endl;
+        EXPECT_EQ(list.at(i), 3-i); 
+    }
+    std::cout << "Tests passed" << std::endl;
+  
+}
+
+// check for race conditions in the DynArr   class
 TEST(ThreadSafetyTests, DynArrSafety){
     int threadCount = std::thread::hardware_concurrency();
     std::vector<std::thread> threads;

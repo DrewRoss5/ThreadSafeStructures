@@ -20,7 +20,6 @@ class Stack{
     private:
         DynArr<T> arr;
         int topIndex;
-        bool freed {false};
 };
 
 // default constructor for the Stack, allocates space for 64 items
