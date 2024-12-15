@@ -30,12 +30,13 @@ class LinkedList{
         void remove(unsigned pos);
         void lock();
         void unlock();
-
+        void clear();
     private:
         ListNode<T>* head {nullptr};
         ListNode<T>* tail {nullptr};
         unsigned listSize {0};
         std::mutex mut;
+        void emptyList();
 };
 
 // constructs a linked list with the given node as the head
@@ -49,6 +50,12 @@ LinkedList<T>::LinkedList(const T& initVal){
 // deconstuctor for the LinkedList class
 template <typename T>
 LinkedList<T>::~LinkedList(){
+   this->emptyList();
+}
+
+// removes all elements in the linked list
+template <typename T>
+void LinkedList<T>::emptyList(){
     ListNode<T>* curr = this->head;
     ListNode<T>* tmp;
     while (curr){
@@ -56,8 +63,17 @@ LinkedList<T>::~LinkedList(){
         delete curr;
         curr = tmp;
     }
+}
+
+// clears all elements from the list and resets memeber variables
+template <typename T>
+void LinkedList<T>::clear(){
+    this->lock();
+    this->emptyList();
     this->head = nullptr;
     this->tail = nullptr;
+    this->listSize = 0;
+    this->unlock();
 }
 
 // returns the current size of the linked list
