@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <vector>
 #include <gtest/gtest.h>
+#include <chrono>
 #include "../src/dynarr.hpp"
 #include "../src/stack.hpp"
 #include "../src/linkedlist.hpp"
@@ -47,18 +48,35 @@ TEST(BasicTests, StackBasic){
 
 // test the basic functionality of the LinkedList class
 TEST(BasicTests, LinkedListBasic){
+    // ensure basic functionality
     LinkedList<int> list;
     list.pushBack(3);
     EXPECT_EQ(list.size(), 1);
     EXPECT_EQ(list.front(), 3);
     list.pushBack(1);
     list.insert(2, 1);
-    for (int i = 0; i < 3; i++){
-        std::cout << "Position " << i << ":" << std::endl;
+    for (int i = 0; i < 3; i++)
         EXPECT_EQ(list.at(i), 3-i); 
-    }
-    std::cout << "Tests passed" << std::endl;
-  
+    // test larger operations
+    list.clear();
+    auto t1 = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < 100'000; i++)
+        list.pushFront(i);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    std::cout << "Pushed 100,000 elements in " << duration << "ms." << std::endl;
+    t1 = std::chrono::high_resolution_clock::now();
+    EXPECT_EQ(list.at(10), 99'989);
+    t2 = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    std::cout << "Accessed item at position 10 in " << duration/1000 << "ms." << std::endl;
+    t1 = std::chrono::high_resolution_clock::now();
+    EXPECT_EQ(list.at(99'990), 9);
+    t2 = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    std::cout << "Accessed item at position 99,990 in " << duration/1000 << "ms." << std::endl;  
+
+
 }
 
 // check for race conditions in the DynArr   class
