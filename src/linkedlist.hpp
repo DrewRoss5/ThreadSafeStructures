@@ -5,12 +5,68 @@
 #include <functional>
 #include <stdexcept>
 
+
 template <typename T>
 struct ListNode{
     T data;
     ListNode<T>* next {nullptr};
     ListNode<T>* prev {nullptr};
 };
+
+template <typename T>
+class ListIterator{
+    public:
+        ListIterator(ListNode<T>* node);
+        T& operator*();
+        ListIterator<T>& operator++();
+        ListIterator<T>& operator--();
+        bool operator==(const ListIterator<T>& rhs);
+        bool operator!=(const ListIterator<T>& rhs);
+    private:
+        ListNode<T>* node;
+};
+
+template <typename T>
+ListIterator<T>::ListIterator(ListNode<T>* node){
+    this->node = node;
+}
+
+// returns the value pointed to by a list iterator
+template <typename T>
+T& ListIterator<T>::operator*(){
+    if (!this->node)
+        throw std::out_of_range("this iterator is out of range");
+    return this->node->data;
+}
+
+// increments the list iterator
+template <typename T>
+ListIterator<T>& ListIterator<T>::operator++(){
+    if (!this->node)
+        throw std::out_of_range("this iterator is out of range");
+    this->node = node->next;
+    return *this;
+}
+
+// decrements the list iterator
+template <typename T>
+ListIterator<T>& ListIterator<T>::operator--(){
+    if (!this->node)
+        throw std::out_of_range("this iterator is out of range");
+    this->node = node->prev;
+    return *this;
+}
+
+
+// compares two list iterators
+template <typename T>
+bool ListIterator<T>::operator==(const ListIterator<T>& rhs){
+    return this->node == rhs.node;
+}
+template <typename T>
+bool ListIterator<T>::operator!=(const ListIterator<T>& rhs){
+    return this->node != rhs.node;
+}
 
 template <typename T>
 class LinkedList{
@@ -31,6 +87,8 @@ class LinkedList{
         void lock();
         void unlock();
         void clear();
+        ListIterator<T> begin();
+        ListIterator<T> end();
     private:
         ListNode<T>* head {nullptr};
         ListNode<T>* tail {nullptr};
@@ -46,6 +104,21 @@ LinkedList<T>::LinkedList(const T& initVal){
     this->head->data = initVal;
     this->tail = this->head;
 }
+
+// returns the iterator from the beginning of the lsit
+template <typename T>
+ListIterator<T> LinkedList<T>::begin(){
+    ListIterator<T> itt(this->head);
+    return itt;
+}
+
+// return the iterator represting the end of the list
+template <typename T>
+ListIterator<T> LinkedList<T>::end(){
+    ListIterator<T> itt(nullptr);
+    return itt;
+}
+
 
 // deconstuctor for the LinkedList class
 template <typename T>

@@ -10,6 +10,7 @@
 
 DynArr<int> globalArr;
 Stack<int> globalStack;
+LinkedList<int> globalList;
 
 // populates the global DynArr with all integers within the range [start, end)
 void populateArr(int start, int end){
@@ -23,6 +24,11 @@ void populateStack(int start, int end){
         globalStack.push(i);
 }
 
+// populates the global LinkedList with all integers within the range [start, end)
+void populateList(int start, int end){
+    for (int i = start; i < end; i++)
+        globalList.pushBack(i);
+}
 
 // test the basic functionality of the DynArr class
 TEST(BasicTests, DynArrBasic){
@@ -57,6 +63,15 @@ TEST(BasicTests, LinkedListBasic){
     list.insert(2, 1);
     for (int i = 0; i < 3; i++)
         EXPECT_EQ(list.at(i), 3-i); 
+    // ensure that iterators work
+    list.clear();
+    for (int i = 0; i < 50; i++)
+        list.pushBack(i);
+    int target {0};
+    for (auto itt = list.begin(); itt != list.end(); ++itt){
+        EXPECT_EQ(*itt, target);
+        ++target;
+    }
     // test larger operations
     list.clear();
     auto t1 = std::chrono::high_resolution_clock::now();
@@ -64,7 +79,7 @@ TEST(BasicTests, LinkedListBasic){
         list.pushFront(i);
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-    std::cout << "Pushed 100,000 elements in " << duration << "ms." << std::endl;
+    std::cout << "Pushed 100,000 elements in " << duration/1000 << "ms." << std::endl;
     t1 = std::chrono::high_resolution_clock::now();
     EXPECT_EQ(list.at(10), 99'989);
     t2 = std::chrono::high_resolution_clock::now();
@@ -75,8 +90,6 @@ TEST(BasicTests, LinkedListBasic){
     t2 = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
     std::cout << "Accessed item at position 99,990 in " << duration/1000 << "ms." << std::endl;  
-
-
 }
 
 // check for race conditions in the DynArr   class
@@ -105,7 +118,7 @@ TEST(ThreadSafetyTests, DynArrSafety){
 TEST(ThreadSafetyTests, StackSafety){
     int threadCount = std::thread::hardware_concurrency();
     std::vector<std::thread> threads;
-    // place 10000 elements from each thread, making a race condition likely
+    // place 1000 elements from each thread, making a race condition likely
     for (int i = 0; i < threadCount; i++)
         threads.emplace_back(populateStack, i * 1000, (i+1) * 1000);
     for (int i = 0; i < threadCount; i++)
