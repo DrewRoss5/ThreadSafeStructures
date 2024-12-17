@@ -121,7 +121,8 @@ void DynArr<T>::reallocate(unsigned newCap){
 template <typename T>
 void DynArr<T>::reserve(unsigned newCap){
     this->lock();
-    this->reallocate(newCap);
+    if (this->capacity < newCap)
+        this->reallocate(newCap);
     this->unlock();
 }
 
