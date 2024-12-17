@@ -16,7 +16,7 @@ An auto-resizing dynamic array class, simillar to `std::vector<T>`
 - Returns the value of the element at `index`
 - Notes
   - Throws an exception if the index is out of bounds
-###### `T& operator[](int index)`:
+##### `T& operator[](int index)`:
 - Returns a reference to the element at `index`
 - Notes
   - Automatically resizes the array if `index` is out of bounds;
@@ -38,5 +38,29 @@ An auto-resizing dynamic array class, simillar to `std::vector<T>`
 - Locks the array's internal mutex
 ##### `void unlock()`:
 - Unlocks the array's internal mutex
+### Stack<T>
+A simple stack implementation simmilar to std::stack.
+#### Constructors:
+##### `Stack<T>()`:
+- Creates a new stack with the starting capacity for 16 elements.
+##### `Stack<T>(int initCapacity)`:
+- Creates a new stack with a starting capacity of `initCapacity` elements. The main use case of this is to increase performance by minimizing resizing operations, if the max size of the Stack is known at the time of object creation.
+#### Getters:
+##### `unsigned size()`:
+- Returns the current size of the stack
+##### `T top()`:
+- Returns the value of the top element of the stack
+#### Modifiers:
+##### `void push(const T& val)`:
+- Pushes `val` to the top of the stack
+##### `T pop()`:
+- Removes the top element of the stack
+- Notes:
+  - Unlike `std::stack`, this returns the value of the popped item.
+##### `void lock()`:
+- Locks the Stack's internal mutex.
+##### `void unlock()`:
+- Unlocks the stack's mutex
+
 
 
