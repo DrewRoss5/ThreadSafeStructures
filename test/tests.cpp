@@ -61,17 +61,17 @@ TEST(BasicTests, LinkedListBasic){
     EXPECT_EQ(list.front(), 3);
     list.pushBack(1);
     list.insert(2, 1);
+    // test removal operations
+    list.pushBack(666);
+    int tmp = list.popBack();
+    std::cout << "popped " << tmp << std::endl;
+    list.pushFront(666);
+    tmp = list.popFront();
+    std::cout << "popped " << tmp << std::endl;
+    list.insert(666, 1);
+    list.remove(1);
     for (int i = 0; i < 3; i++)
         EXPECT_EQ(list.at(i), 3-i); 
-    // ensure that iterators work
-    list.clear();
-    for (int i = 0; i < 50; i++)
-        list.pushBack(i);
-    int target {0};
-    for (auto itt = list.begin(); itt != list.end(); ++itt){
-        EXPECT_EQ(*itt, target);
-        ++target;
-    }
     // test larger operations
     list.clear();
     auto t1 = std::chrono::high_resolution_clock::now();

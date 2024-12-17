@@ -14,61 +14,6 @@ struct ListNode{
 };
 
 template <typename T>
-class ListIterator{
-    public:
-        ListIterator(ListNode<T>* node);
-        T& operator*();
-        ListIterator<T>& operator++();
-        ListIterator<T>& operator--();
-        bool operator==(const ListIterator<T>& rhs);
-        bool operator!=(const ListIterator<T>& rhs);
-    private:
-        ListNode<T>* node;
-};
-
-template <typename T>
-ListIterator<T>::ListIterator(ListNode<T>* node){
-    this->node = node;
-}
-
-// returns the value pointed to by a list iterator
-template <typename T>
-T& ListIterator<T>::operator*(){
-    if (!this->node)
-        throw std::out_of_range("this iterator is out of range");
-    return this->node->data;
-}
-
-// increments the list iterator
-template <typename T>
-ListIterator<T>& ListIterator<T>::operator++(){
-    if (!this->node)
-        throw std::out_of_range("this iterator is out of range");
-    this->node = node->next;
-    return *this;
-}
-
-// decrements the list iterator
-template <typename T>
-ListIterator<T>& ListIterator<T>::operator--(){
-    if (!this->node)
-        throw std::out_of_range("this iterator is out of range");
-    this->node = node->prev;
-    return *this;
-}
-
-
-// compares two list iterators
-template <typename T>
-bool ListIterator<T>::operator==(const ListIterator<T>& rhs){
-    return this->node == rhs.node;
-}
-template <typename T>
-bool ListIterator<T>::operator!=(const ListIterator<T>& rhs){
-    return this->node != rhs.node;
-}
-
-template <typename T>
 class LinkedList{
     public:
         LinkedList() {};
@@ -87,13 +32,12 @@ class LinkedList{
         void lock();
         void unlock();
         void clear();
-        ListIterator<T> begin();
-        ListIterator<T> end();
     private:
         ListNode<T>* head {nullptr};
         ListNode<T>* tail {nullptr};
         unsigned listSize {0};
         std::mutex mut;
+        bool freed {false};
         void emptyList();
 };
 
@@ -105,25 +49,13 @@ LinkedList<T>::LinkedList(const T& initVal){
     this->tail = this->head;
 }
 
-// returns the iterator from the beginning of the lsit
-template <typename T>
-ListIterator<T> LinkedList<T>::begin(){
-    ListIterator<T> itt(this->head);
-    return itt;
-}
-
-// return the iterator represting the end of the list
-template <typename T>
-ListIterator<T> LinkedList<T>::end(){
-    ListIterator<T> itt(nullptr);
-    return itt;
-}
-
-
 // deconstuctor for the LinkedList class
 template <typename T>
 LinkedList<T>::~LinkedList(){
-   this->emptyList();
+    if (!this->freed){
+        this->emptyList();
+        this->freed = true;
+    }
 }
 
 // removes all elements in the linked list
@@ -298,6 +230,68 @@ void LinkedList<T>::insert(const T& val, unsigned targetPos){
     curr->next = newNode;
     // update the list size
     this->listSize++;
+    this->unlock();
+}
+
+// pops the front value of the linked list. Raises an error if the list is empty
+template <typename T>
+T LinkedList<T>::popFront(){
+    this->lock();
+    if (!this->head){
+        this->unlock();
+        throw std::out_of_range("this linked list is empty");
+    }
+    T retval = this->head->data;
+    ListNode<T>* tmp = this->head->next;
+    delete this->head;
+    this->head = tmp;
+    this->head->prev = nullptr;
+    this->listSize--;
+    this->unlock();
+    return retval;
+}
+
+// pops the back value of the linked lists. Raises an error if the list is empyy
+template <typename T>
+T LinkedList<T>::popBack(){
+    this->lock();
+    if (!this->head){
+        this->unlock();
+        throw std::out_of_range("this linked list is empty");
+    }
+    T retval = this->tail->data;
+    ListNode<T>* tmp = this->tail->prev;
+    delete this->tail;
+    this->tail = tmp;
+    this->tail->next = nullptr;
+    this->listSize--;
+    this->unlock();
+    return retval;
+}
+
+// removes the value at the given index
+template <typename T>
+void LinkedList<T>::remove(unsigned targetPos){
+    this->lock();
+    if (targetPos > this->listSize)
+        throw std::out_of_range("index out of range");
+    // traverse the list until the target is found
+    int pos {0};
+    ListNode<T>* curr = this->head;
+    ListNode<T>* prev {nullptr};
+    while (pos != targetPos){
+        prev = curr;
+        curr = curr->next;
+        ++pos;
+    }
+    // remove curr from the list
+    if (prev)
+        prev->next = curr->next;
+    if (curr->next)
+        curr->next->prev = curr->prev;
+    delete curr;
+    // clean up
+    this->listSize--;
     this->unlock();
 }
 
